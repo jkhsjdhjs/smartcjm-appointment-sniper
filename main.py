@@ -1,5 +1,3 @@
-
-
 import argparse
 import datetime
 import itertools
@@ -13,24 +11,42 @@ from bs4 import BeautifulSoup
 import requests
 
 
-parser = argparse.ArgumentParser(description="Get an appointment in a SmartCJM calendar effortlessly!", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser = argparse.ArgumentParser(description="Get an appointment in a SmartCJM calendar effortlessly!",
+                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser.add_argument("-b", "--base-url", type=str, default="https://stadt-aachen.saas.smartcjm.com/m/buergerservice/extern/calendar", help="the base URL to use with SmartCJM calendars other than Aachen Bürgerservice")
-parser.add_argument("-c", "--calendar-uid", type=str, default="15940648-b483-46d9-819e-285707f1fc34", help="the UID of the calendar. specify when attempting to book service types outside the regular calendar, or for other services than Aachen Bürgerservice")
-parser.add_argument("-n", "--dry-run", action="store_true", help="run the program as usual but don't register any appointment")
-parser.add_argument("-y", "--no-confirm", action="store_true", help="don't confirm anything, always assume 'yes'. useful when running this tool as a service")
-parser.add_argument("--log-level", default="INFO", choices=logging.getLevelNamesMapping().keys(), help="Set the logging level")
+parser.add_argument("-b", "--base-url", type=str,
+                    default="https://stadt-aachen.saas.smartcjm.com/m/buergerservice/extern/calendar",
+                    help="the base URL to use with SmartCJM calendars other than Aachen Bürgerservice")
+parser.add_argument("-c", "--calendar-uid", type=str, default="15940648-b483-46d9-819e-285707f1fc34",
+                    help="the UID of the calendar. specify when attempting to book service types outside "
+                         "the regular calendar, or for other services than Aachen Bürgerservice")
+parser.add_argument("-n", "--dry-run", action="store_true", help="run the program as usual, "
+                    "but don't register any appointment")
+parser.add_argument("-y", "--no-confirm", action="store_true", help="don't confirm anything, always assume 'yes'. "
+                    "useful when running this tool as a service")
+parser.add_argument("--log-level", default="INFO", choices=logging.getLevelNamesMapping().keys(),
+                    help="Set the logging level")
 
-subparsers = parser.add_subparsers(required=True, dest="subcommand", help="(see --help of the subcommands for further parameters)")
+subparsers = parser.add_subparsers(required=True, dest="subcommand",
+                                   help="(see --help of the subcommands for further parameters)")
 
-subparsers.add_parser("list", help="list available appointment types and their UID", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+subparsers.add_parser("list", help="list available appointment types and their UID",
+                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser_book = subparsers.add_parser("book", help="book an appointment given the parameters", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser_book.add_argument("-u", "--uid", required=True, help="the UID of the appointment type to snipe (retrieve via the `list` subcommand)")
-parser_book.add_argument("-m", "--mail", required=True, type=str, help="the mail address for booking the appointment")
-parser_book.add_argument("-l", "--location", required=True, type=str, help="the location where you want to have your appointment. the location is selected via substring, so every location that this value is a case-insensitive substring of will be considered")
-parser_book.add_argument("--time-from", required=True, type=datetime.datetime.fromisoformat, help="earliest datetime you want to have your appointment. ISOformat - YYYY-MM-DD:HH:mm:ss")
-parser_book.add_argument("--time-to", required=True, type=datetime.datetime.fromisoformat, help="latest datetime you want to have your appointment. ISOformat - YYYY-MM-DD:HH:mm:ss")
+parser_book = subparsers.add_parser("book", help="book an appointment given the parameters",
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser_book.add_argument("-u", "--uid", required=True, help="the UID of the appointment type to snipe "
+                         "(retrieve via the `list` subcommand)")
+parser_book.add_argument("-m", "--mail", required=True, type=str,
+                         help="the mail address for booking the appointment")
+parser_book.add_argument("-l", "--location", required=True, type=str,
+                         help="the location where you want to have your appointment. "
+                         "the location is selected via substring, so every location that this value is "
+                         "a case-insensitive substring of will be considered")
+parser_book.add_argument("--time-from", required=True, type=datetime.datetime.fromisoformat,
+                         help="earliest datetime you want to have your appointment. ISOformat - YYYY-MM-DD:HH:mm:ss")
+parser_book.add_argument("--time-to", required=True, type=datetime.datetime.fromisoformat,
+                         help="latest datetime you want to have your appointment. ISOformat - YYYY-MM-DD:HH:mm:ss")
 parser_book.add_argument("-s", "--sleep", default=30, type=int, help="how long to wait between attempts (in seconds)")
 
 args = parser.parse_args()
@@ -38,9 +54,9 @@ args = parser.parse_args()
 logging.basicConfig(level=args.log_level, format="%(asctime)s - %(levelname)s - %(module)s - %(message)s")
 log = logging.getLogger(__name__)
 
-URL_SERVICE_LIST=f"{args.base_url}/get_service_list"
-URL_SEARCH_RESULT=f"{args.base_url}/search_result"
-URL_BOOKING=f"{args.base_url}/booking"
+URL_SERVICE_LIST = f"{args.base_url}/get_service_list"
+URL_SEARCH_RESULT = f"{args.base_url}/search_result"
+URL_BOOKING = f"{args.base_url}/booking"
 
 if args.subcommand == "list":
     r = requests.get(URL_SERVICE_LIST, params={"uid": args.calendar_uid})
@@ -78,7 +94,8 @@ if args.time_to.tzinfo is None:
     args.time_to = args.time_to.replace(tzinfo=zoneinfo.ZoneInfo("Europe/Berlin"))
 
 if not args.no_confirm:
-    print(f"This tool will check for appointments on location '{args.location}' between {args.time_from} and {args.time_to}.")
+    print(f"This tool will check for appointments on location '{args.location}' between {args.time_from} "
+          "and {args.time_to}.")
     if not args.dry_run:
         print(f"This tool will also book a matching appointment for the mail address '{args.mail}'.")
     user_input = input("Is this correct? [y/N] ").strip().lower()
