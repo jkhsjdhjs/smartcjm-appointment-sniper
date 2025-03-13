@@ -93,6 +93,10 @@ if args.time_to.tzinfo is None:
     log.warning("The datetime supplied for time-to has no timezone, assuming Europe/Berlin")
     args.time_to = args.time_to.replace(tzinfo=zoneinfo.ZoneInfo("Europe/Berlin"))
 
+if args.time_from > args.time_to:
+    log.error(f"The value supplied for time-from ({args.time_from}) must be earlier than time-to ({args.time_to})!")
+    exit(1)
+
 if not args.no_confirm:
     print(f"This tool will check for appointments on location '{args.location}' between {args.time_from} "
           "and {args.time_to}.")
