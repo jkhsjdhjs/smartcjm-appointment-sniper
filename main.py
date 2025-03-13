@@ -113,6 +113,10 @@ for i in itertools.count(1):
         log.info(f"sleeping for {args.sleep}s")
         time.sleep(args.sleep)
 
+    if args.time_to < datetime.datetime.now().astimezone():
+        log.error("The timerange specified via time-from and time-to is (now) in the past, aborting.")
+        exit(1)
+
     log.info(f"checking for available appointments, try #{i}")
 
     # apparently we don't even need a requests.Session() for storing cookies
