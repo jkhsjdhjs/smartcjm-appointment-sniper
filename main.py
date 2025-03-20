@@ -99,7 +99,7 @@ if args.time_from > args.time_to:
 
 if not args.no_confirm:
     print(f"This tool will check for appointments on location '{args.location}' between {args.time_from} "
-          "and {args.time_to}.")
+          f"and {args.time_to}.")
     if not args.dry_run:
         print(f"This tool will also book a matching appointment for the mail address '{args.mail}'.")
     user_input = input("Is this correct? [y/N] ").strip().lower()
